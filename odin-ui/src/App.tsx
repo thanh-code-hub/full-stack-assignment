@@ -2,12 +2,12 @@ import './App.css';
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {useEffect, useRef} from "react";
-import {useLighthouseLocation, useSarCoords, useVehichleLocation} from "./hooks";
+import {useLighthouseLocation, useSarCoords, useShipLocation} from "./hooks";
 
 export const App = (): JSX.Element => {
     const {sarCoords} = useSarCoords()
     const {lighthouseCoords} = useLighthouseLocation()
-    const {vehicleCoord} = useVehichleLocation()
+    const {shipCoords} = useShipLocation()
     const mapRef = useRef<mapboxgl.Map>();
 
     mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
@@ -57,17 +57,17 @@ export const App = (): JSX.Element => {
     }, [lighthouseCoords]);
 
     useEffect(() => {
-        if (vehicleCoord && mapRef.current) {
+        if (shipCoords && mapRef.current) {
             const el = document.createElement("div")
             new mapboxgl.Marker({
                 "element": el,
                 "className": "marker-vehicle"
             })
-                .setLngLat(vehicleCoord)
+                .setLngLat(shipCoords)
                 // @ts-ignore
                 .addTo(mapRef.current);
         }
-    }, [vehicleCoord]);
+    }, [shipCoords]);
 
 
     return <div id="map-container"></div>

@@ -1,5 +1,5 @@
 import useLighthouseLocation from "./useLighthouseLocation";
 import useSarCoords from "./useSarCoords";
-import useVehichleLocation from "./useVehichleLocation";
+import useShipLocation from "./useShipLocation";
 
-export {useLighthouseLocation, useSarCoords, useVehichleLocation}
+export {useLighthouseLocation, useSarCoords, useShipLocation}

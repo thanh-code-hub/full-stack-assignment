@@ -66,7 +66,7 @@ async def get_seamark_lights():
 
     return items
 
-@app.get("/vehicle")
+@app.get("/ship")
 async def get_vehicle_location():
     return [22.30606, 59.89134]
 

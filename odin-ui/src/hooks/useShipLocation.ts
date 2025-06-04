@@ -2,15 +2,15 @@ import {useEffect, useState} from "react";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:8000";
 
-export default function useVehichleLocation() {
-    const [vehicleCoord, setVehicleCoord] = useState<[number, number] | undefined>()
+export default function useShipLocation() {
+    const [shipCoords, setShipCoords] = useState<[number, number] | undefined>()
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string>('')
 
     useEffect(() => {
-       const fetchVehicleLocation = async () => {
+       const fetchShipLocation = async () => {
            setLoading(true)
-           const res = await fetch(`${BASE_URL}/vehicle`)
+           const res = await fetch(`${BASE_URL}/ship`)
                .catch((err) => {
                    // @ts-ignore
                    setError(res.status)
@@ -19,12 +19,12 @@ export default function useVehichleLocation() {
 
            // @ts-ignore
            if(!res.ok)
-               setError("Error while fetching vehicle location")
+               setError("Error while fetching ship location")
            // @ts-ignore
-           setVehicleCoord(await res.json())
+           setShipCoords(await res.json())
        }
-       void fetchVehicleLocation()
+       void fetchShipLocation()
     }, [])
 
-    return {vehicleCoord, loading, error}
+    return {shipCoords, loading, error}
 }
