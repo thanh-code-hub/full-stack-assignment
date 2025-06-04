@@ -1,38 +1,31 @@
 import './App.css';
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
+import {useLighthouseLocation, useSarCoords, useVehichleLocation} from "./hooks";
 
 export const App = (): JSX.Element => {
+    const {sarCoords} = useSarCoords()
+    const {lighthouseCoords} = useLighthouseLocation()
+    const {vehicleCoord} = useVehichleLocation()
+    const mapRef = useRef<mapboxgl.Map>();
 
+    mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
     useEffect(() => {
-        mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
-        const mapbox = new mapboxgl.Map({
+        mapRef.current = new mapboxgl.Map({
             container: "map-container",
             center: [22.4673, 59.8613],
-            zoom: 12,
+            zoom: 11,
         });
 
-        mapbox.on('load', async () => {
-            let coords: [[number, number], [number, number], [number, number], [number, number]] | undefined;
-            try {
-
-                const response = await fetch("http://localhost:8000/sar_coords");
-                if (!response.ok) {
-                    throw new Error(`${response.status}`);
-                }
-                coords = await response.json();
-            } catch (e) {
-                console.error("Failed to fetch SAR coordinates: ", e);
-            }
-
-            if(coords) {
-                mapbox.addSource('sar', {
+        mapRef.current.on('load', async () => {
+            if (sarCoords && mapRef.current) {
+                mapRef.current.addSource('sar', {
                     'type': 'image',
                     'url': 'http://localhost:8000/sar_image',
-                    'coordinates': coords
+                    'coordinates': sarCoords
                 });
-                mapbox.addLayer({
+                mapRef.current.addLayer({
                     id: 'sar-layer',
                     'type': 'raster',
                     'source': 'sar',
@@ -43,14 +36,40 @@ export const App = (): JSX.Element => {
             }
         });
         return () => {
-            mapbox.remove()
+            if (mapRef.current)
+                mapRef.current.remove()
         }
-    }, [])
+    }, [sarCoords, mapRef])
 
-    return (
-        <>
-            <div id="map-container"></div>
-        </>
-    )
+    useEffect(() => {
+        if (lighthouseCoords && mapRef.current) {
+            const el = document.createElement("div")
+            lighthouseCoords.forEach((coord: [number, number]) => {
+                new mapboxgl.Marker({
+                    "element": el,
+                    "className": "marker-lighthouse"
+                })
+                    .setLngLat(coord)
+                    // @ts-ignore
+                    .addTo(mapRef.current);
+            })
+        }
+    }, [lighthouseCoords]);
+
+    useEffect(() => {
+        if (vehicleCoord && mapRef.current) {
+            const el = document.createElement("div")
+            new mapboxgl.Marker({
+                "element": el,
+                "className": "marker-vehicle"
+            })
+                .setLngLat(vehicleCoord)
+                // @ts-ignore
+                .addTo(mapRef.current);
+        }
+    }, [vehicleCoord]);
+
+
+    return <div id="map-container"></div>
 }
 
