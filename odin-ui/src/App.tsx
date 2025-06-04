@@ -61,7 +61,7 @@ export const App = (): JSX.Element => {
             const el = document.createElement("div")
             new mapboxgl.Marker({
                 "element": el,
-                "className": "marker-vehicle"
+                "className": "marker-ship"
             })
                 .setLngLat(shipCoords)
                 // @ts-ignore
