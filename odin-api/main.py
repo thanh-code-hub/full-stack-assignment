@@ -56,20 +56,17 @@ async def get_seamark_lights():
     except overpy.exception.OverpassTooManyRequests:
         raise HTTPException(status_code=429, detail="Rate limit from Overpass")
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Error while fetching from Overpass: {exc}") from exc
+        raise HTTPException(status_code=500, detail=f"Error while fetching from Overpass: {exc}") from exc
 
 
     items = []
 
     for node in result.nodes:
-        tags = node.tags
-        items.append({
-            "type": "node",
-            "id": node.id,
-            "lat": node.lat,
-            "lon": node.lon,
-            "tags": tags
-        })
+        items.append([node.lon, node.lat])
 
-    return {"elements": items}
+    return items
+
+@app.get("/vehicle")
+async def get_vehicle_location():
+    return [22.30606, 59.89134]
 
