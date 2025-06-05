@@ -12,18 +12,21 @@ export default function useSarCoords() {
     useEffect(() => {
         const fetchSarCoords = async () => {
             setLoading(true)
-            const res = await fetch(`${BASE_URL}/sar_coords`)
-                .catch((err) => {
-                    // @ts-ignore
-                    setError(res.status)
-                    console.log(err)
-                }).finally(() => setLoading(false));
-            // @ts-ignore
-
-            if(!res.ok)
-                setError("Error while fetching coords")
-            // @ts-ignore
-            setSarCoords(await res.json())
+            try {
+                const res = await fetch(`${BASE_URL}/sar_coords`) as Response
+                if(!res.ok)
+                    setError(`Error while fetching SAR coords: ${res.status}`)
+                setSarCoords(await res.json())
+            }
+            catch (e) {
+                if(typeof e === 'string')
+                    setError(e)
+                else {
+                    setError("Error while fetching SAR coords")
+                    console.error(e)
+                }
+            }
+            setLoading(false)
         }
         void fetchSarCoords()
     }, [])

@@ -10,18 +10,22 @@ export default function useShipLocation() {
     useEffect(() => {
        const fetchShipLocation = async () => {
            setLoading(true)
-           const res = await fetch(`${BASE_URL}/ship`)
-               .catch((err) => {
-                   // @ts-ignore
-                   setError(res.status)
-                   console.log(err)
-               }).finally(() => setLoading(false));
+           try{
+               const response = await fetch(`${BASE_URL}/ship`) as Response
 
-           // @ts-ignore
-           if(!res.ok)
-               setError("Error while fetching ship location")
-           // @ts-ignore
-           setShipCoords(await res.json())
+               if(!response.ok)
+                   throw new Error(`Error while fetching ship location: ${response.status}`)
+               setShipCoords(await response.json())
+           }
+           catch (e) {
+               if(typeof e === 'string')
+                   setError(e)
+               else {
+                   setError("Error while fetching ship location")
+                   console.error(e)
+               }
+           }
+           setLoading(false)
        }
        void fetchShipLocation()
     }, [])

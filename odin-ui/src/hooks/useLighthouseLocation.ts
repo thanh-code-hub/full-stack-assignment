@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:8000";
 
@@ -7,23 +7,24 @@ export default function useLighthouseLocation() {
     const [error, setError] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(true)
 
-    useEffect(() => {
-        const fetchLighthouseLocation = async () => {
-            setLoading(true)
-            const res = await fetch(`${BASE_URL}/seamarks`)
-                .catch((err) => {
-                    // @ts-ignore
-                    setError(res.status)
-                    console.log(err)
-                }).finally(() => setLoading(false));
-            // @ts-ignore
-            if(!res.ok)
-                setError("Error while fetching lighthouse locations")
-            // @ts-ignore
-            setLighthouseCoords(await res.json())
+    const fetchLighthouseLocation = async (bbox: [number, number, number, number]) => {
+        setLoading(true)
+        try {
+            const response = await fetch(`${BASE_URL}/seamarks?bbox=${bbox.join(",")}`) as Response
+            if (!response.ok)
+                throw new Error(`Error while fetching lighthouse locations: ${response.status}`)
+            setLighthouseCoords(await response.json())
         }
-        void fetchLighthouseLocation()
-    }, [])
+        catch (error) {
+            if(typeof error === "string") {
+                setError(error)
+            } else {
+                console.error(error)
+                setError("Error while fetching lighthouse locations")
+            }
+        }
+        setLoading(false)
+    }
 
-    return {lighthouseCoords, loading, error}
+    return {lighthouseCoords, fetchLighthouseLocation, loading, error}
 }
