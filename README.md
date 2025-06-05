@@ -6,6 +6,12 @@ If you hit a wall on some task or you're just unable to finish it in time, you c
 
 We expect the tasks to take 4-6h of time.
 
+
+# Deployment diagram
+
+![deployment](./deployment.png)
+
+
 # Installation
 
 The frontend server is a Node project using typescript and React. It needs node (v18) installed and can be run with
